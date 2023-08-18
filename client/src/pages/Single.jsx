@@ -1,62 +1,65 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Edit from "../img/edit.png";
 import Delete from "../img/delete.png";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Menu from "../components/Menu";
+import axios from "axios";
+import moment from "moment";
+import { AuthContext } from "../context/authContext";
 
 const Single = () => {
+  const [post, setPost] = useState({});
+
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const postId = location.pathname.split("/")[2];
+
+  const { currentUser } = useContext(AuthContext);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get(`/posts/${postId}`);
+        setPost(res.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    fetchData();
+  }, [postId]);
+
+  const handleDelete = async () => {
+    try {
+      await axios.delete(`/posts/${postId}`);
+      navigate("/");
+    } catch (err) {
+      console.log(err);
+    }
+  };
   return (
     <div className="single">
       <div className="content">
-        <img src="https://images.pexels.com/photos/6157049/pexels-photo-6157049.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" />
+        <img src={post?.img} />
         <div className="user">
-          <img src="https://images.pexels.com/photos/6157049/pexels-photo-6157049.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" />
+          {post.userImg && <img src={post.userImg} />}
           <div className="info">
-            <span>John</span>
-            <p>Posted 2days ago</p>
+            <span>{post.username}</span>
+            <p>Posted {moment(post.date).fromNow()}</p>
           </div>
-          <div className="edit">
-            <Link to={`/write?edit=2`}>
-              <img src={Edit} alt="" />
-            </Link>
-            <img src={Delete} alt="" />
-          </div>
+          {currentUser.username === post.username && (
+            <div className="edit">
+              <Link to={`/write?edit=2`}>
+                <img src={Edit} alt="" />
+              </Link>
+              <img onClick={handleDelete} src={Delete} alt="" />
+            </div>
+          )}
         </div>
-        <h1>
-          Lorem ipsum dolor sit amet consectetur, adipisicing elit. Eveniet,
-          incidunt!
-        </h1>
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae ipsum,
-          alias natus eum possimus corrupti quidem reiciendis, similique
-          nesciunt voluptatibus iste cumque a, quasi tenetur dolor.
-          <br />
-          <br />
-          Suscipit obcaecati harum nihil nesciunt vero eum magnam dignissimos,
-          nam deleniti, ab praesentium? Delectus iusto, sunt fugiat et velit
-          eaque ex, aliquid nam id at, eum beatae dolorem asperiores? Illum
-          voluptatem, magni sed quos minus cum nobis officiis explicabo
-          repellendus ipsum quis accusantium soluta consequuntur possimus
-          voluptas deleniti animi, corporis placeat odit expedita quidem
-          consequatur? Ea, aspernatur quas iste nisi facilis minus ullam autem
-          dolorum sit, ut adipisci? Nam quasi saepe ipsam omnis laboriosam, ad
-          ut eaque quod cumque
-          <br />
-          <br />
-          commodi. Aliquid cumque quaerat reprehenderit omnis quod ducimus saepe
-          harum, iusto aperiam natus laboriosam. Qui, architecto, consectetur
-          asperiores rerum deserunt vitae illum inventore facere atque labore
-          officiis ad reprehenderit quod expedita adipisci. Quisquam, quam
-          suscipit delectus natus corrupti perferendis provident. Vitae esse
-          perferendis aliquid sint voluptas culpa recusandae accusamus qui
-          ducimus nemo voluptatum, labore accusantium, dolorum corporis commodi
-          quod voluptate. Qui pariatur, illum eaque veniam ullam nisi fugit
-          commodi quasi esse nihil eum eius perspiciatis sint debitis ducimus
-          laudantium distinctio! Asperiores at, praesentium mollitia odio
-          ducimus perferendis nulla sapiente!
-        </p>
+        <h1>{post.title}</h1>
+        {post.desc}
       </div>
-      <Menu />
+      <Menu cat={post.cat} />
     </div>
   );
 };
