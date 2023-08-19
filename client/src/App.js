@@ -15,6 +15,10 @@ import Single from "./pages/Single";
 
 import "../src/style.css";
 
+{
+  /* every thing will be rendered here!*/
+}
+
 const Layout = () => {
   return (
     <>
