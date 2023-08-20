@@ -16,7 +16,7 @@ import Single from "./pages/Single";
 import "../src/style.css";
 
 {
-  /* every thing will be rendered here in the app.js file*/
+  /* every thing will be rendered here in the app.js*/
 }
 
 const Layout = () => {
